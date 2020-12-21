@@ -5,15 +5,16 @@ import com.dummy.myerp.business.impl.AbstractBusinessManager;
 import com.dummy.myerp.business.impl.TransactionManager;
 import com.dummy.myerp.consumer.dao.contrat.ComptabiliteDao;
 import com.dummy.myerp.consumer.dao.contrat.DaoProxy;
-import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
-import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
-import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
-import com.dummy.myerp.model.bean.comptabilite.LigneEcritureComptable;
+import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -121,7 +122,7 @@ public class ComptabiliteManagerImplTest {
         addValidLines(vEcritureComptable);
         vEcritureComptable.setReference("AC-2020/00001");
 
-        when(comptabiliteDaoMock.getEcritureComptableByRef("TestRef")).thenReturn(vEcritureComptable);
+        when(comptabiliteDaoMock.getEcritureComptableByRef("AC-2020/00001")).thenReturn(vEcritureComptable);
 
         EcritureComptable ecritureComptableComparaison = new EcritureComptable();
         ecritureComptableComparaison.setLibelle("Libelle2");
@@ -130,9 +131,51 @@ public class ComptabiliteManagerImplTest {
         addValidLines(ecritureComptableComparaison);
         ecritureComptableComparaison.setReference("AC-2020/00001");
 
-        assertThrows(FunctionalException.class, () -> manager.checkEcritureComptable(ecritureComptableComparaison));
+        assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableContext(ecritureComptableComparaison));
 
     }
+
+    @Nested
+    @DisplayName("Test des scénarios relatifs aux références")
+    class checkRef {
+        @Test
+        @DisplayName("Ajout de la séquence : séquence déjà existante")
+        public void addRefWithCreatedSequence() throws NotFoundException {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2020, Calendar.JANUARY, 1);
+
+            EcritureComptable ecritureComptable = new EcritureComptable();
+            ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
+            ecritureComptable.setDate(calendar.getTime());
+            ecritureComptable.setLibelle("Libelle");
+            addValidLines(ecritureComptable);
+
+            when(comptabiliteDaoMock.getSequenceEcritureComptable(2020, "BQ")).thenReturn(new SequenceEcritureComptable(2020,51));
+            manager.addReference(ecritureComptable);
+
+            assertEquals("BQ-2020/00052", ecritureComptable.getReference());
+        }
+
+        @Test
+        @DisplayName("Ajout de la séquence : séquence inexistante")
+        public void addRefWithNoSequenceCreated() throws NotFoundException {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2020, Calendar.JANUARY, 1);
+
+            EcritureComptable ecritureComptable = new EcritureComptable();
+            ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
+            ecritureComptable.setDate(calendar.getTime());
+            ecritureComptable.setLibelle("Libelle");
+            addValidLines(ecritureComptable);
+
+            when(comptabiliteDaoMock.getSequenceEcritureComptable(2020, "BQ"))
+                    .thenThrow(new NotFoundException("Séquence non trouvée"));
+            manager.addReference(ecritureComptable);
+
+            assertEquals("BQ-2020/00001", ecritureComptable.getReference());
+        }
+    }
+
 
     private EcritureComptable getEcritureComptable() {
         EcritureComptable vEcritureComptable = new EcritureComptable();

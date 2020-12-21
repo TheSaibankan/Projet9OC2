@@ -1,20 +1,18 @@
 package com.dummy.myerp.business.impl.manager;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import com.dummy.myerp.model.bean.comptabilite.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.TransactionStatus;
 import com.dummy.myerp.business.contrat.manager.ComptabiliteManager;
 import com.dummy.myerp.business.impl.AbstractBusinessManager;
-import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
-import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
-import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
-import com.dummy.myerp.model.bean.comptabilite.LigneEcritureComptable;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
 
@@ -61,19 +59,53 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // TODO à tester
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
-        // TODO à implémenter
-        // Bien se réferer à la JavaDoc de cette méthode !
-        /* Le principe :
-                1.  Remonter depuis la persitance la dernière valeur de la séquence du journal pour l'année de l'écriture
-                    (table sequence_ecriture_comptable)
-                2.  * S'il n'y a aucun enregistrement pour le journal pour l'année concernée :
-                        1. Utiliser le numéro 1.
-                    * Sinon :
-                        1. Utiliser la dernière valeur + 1
-                3.  Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
-                4.  Enregistrer (insert/update) la valeur de la séquence en persitance
-                    (table sequence_ecriture_comptable)
-         */
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pEcritureComptable.getDate());
+
+        int annee = calendar.get(Calendar.YEAR);
+        String code = pEcritureComptable.getJournal().getCode();
+        String finalSequence = "";
+        TransactionStatus transactionStatus = getTransactionManager().beginTransactionMyERP();
+
+        try {
+            SequenceEcritureComptable sequenceEcritureComptable = getDaoProxy().getComptabiliteDao().getSequenceEcritureComptable(annee, code);
+
+            int lastValue = sequenceEcritureComptable.getDerniereValeur() + 1;
+            sequenceEcritureComptable.setDerniereValeur(lastValue);
+
+            if(lastValue < 10000)
+                finalSequence += "0";
+            if(lastValue < 1000)
+                finalSequence += "0";
+            if(lastValue < 100)
+                finalSequence += "0";
+            if(lastValue < 10)
+                finalSequence += "0";
+
+            finalSequence += lastValue;
+            pEcritureComptable.setReference(pEcritureComptable.getJournal().getCode() + "-" + annee + "/" + finalSequence);
+
+            //updateSequence(code, transactionStatus, sequenceEcritureComptable);
+
+        } catch (NotFoundException exception) {
+            SequenceEcritureComptable sequenceEcritureComptable= new SequenceEcritureComptable();
+            sequenceEcritureComptable.setAnnee(annee);
+            sequenceEcritureComptable.setDerniereValeur(1);
+
+            pEcritureComptable.setReference(pEcritureComptable.getJournal().getCode() + "-" + annee + "/" + "00001");
+
+            updateSequence(code, transactionStatus, sequenceEcritureComptable);
+
+       } finally {
+           getTransactionManager().rollbackMyERP(transactionStatus);
+        }
+
+    }
+
+    private void updateSequence(String code, TransactionStatus transactionStatus, SequenceEcritureComptable sequenceEcritureComptable) {
+        getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(sequenceEcritureComptable, code);
+        getTransactionManager().commitMyERP(transactionStatus);
     }
 
     /**
