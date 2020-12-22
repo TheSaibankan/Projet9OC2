@@ -42,6 +42,7 @@ public class ComptabiliteManagerImplTest {
     @DisplayName("Ecriture comptable valide")
     public void checkEcritureComptableUnit() throws Exception {
         EcritureComptable vEcritureComptable = getEcritureComptable();
+        vEcritureComptable.setReference("AC-2020/00001");
         vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                                                                                  null, new BigDecimal(123),
                                                                                  null));
@@ -132,8 +133,46 @@ public class ComptabiliteManagerImplTest {
         ecritureComptableComparaison.setReference("AC-2020/00001");
 
         assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableContext(ecritureComptableComparaison));
-
     }
+
+    @Nested
+    @DisplayName("Test de l'authenticité de la référence")
+    class checkRefValidity {
+
+        @Test
+        @DisplayName("Ecriture dont la référence ne respecte pas le code journal fournis")
+        public void referenceMustHaveCorrectValues() {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2020, Calendar.JANUARY, 1);
+
+            EcritureComptable ecritureComptable = getEcritureComptable();
+            addValidLines(ecritureComptable);
+            ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
+            ecritureComptable.setDate(calendar.getTime());
+            ecritureComptable.setLibelle("Libelle");
+
+            ecritureComptable.setReference("CQ-2020/00001");
+
+            assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableUnit(ecritureComptable));
+        }
+        @Test
+        @DisplayName("Ecriture dont la référence ne respecte pas l'année fournis")
+        public void referenceMustHaveCorrectValues2() {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2020, Calendar.JANUARY, 1);
+
+            EcritureComptable ecritureComptable = getEcritureComptable();
+            addValidLines(ecritureComptable);
+            ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
+            ecritureComptable.setDate(calendar.getTime());
+            ecritureComptable.setLibelle("Libelle");
+
+            ecritureComptable.setReference("BQ-2019/00001");
+
+            assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableUnit(ecritureComptable));
+        }
+    }
+
 
     @Nested
     @DisplayName("Test des scénarios relatifs aux références")

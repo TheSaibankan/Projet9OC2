@@ -56,7 +56,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     /**
      * {@inheritDoc}
      */
-    // TODO à tester
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
 
@@ -111,7 +110,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     /**
      * {@inheritDoc}
      */
-    // TODO à tester
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
         this.checkEcritureComptableUnit(pEcritureComptable);
@@ -166,15 +164,20 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
         // TODO ===== RG_Compta_5 : Format et contenu de la référence
         // vérifier que l'année dans la référence correspond bien à la date de l'écriture, idem pour le code journal...
-//        String refEcriture = pEcritureComptable.getReference();
-//        if (!refEcriture.substring(
-//                0, refEcriture.indexOf("-"))
-//                .equals(pEcritureComptable.getJournal().getCode()) ||
-//        !refEcriture.substring(
-//                refEcriture.indexOf("-"), refEcriture.indexOf("/"))
-//                .equals(pEcritureComptable.getDate().getYear())) {
-//            throw new FunctionalException("La référence de l'écriture comptable ne correspond pas aux valeurs de cette dernière.");
-//        }
+        String refEcriture = pEcritureComptable.getReference();
+        if (!refEcriture.substring(0, refEcriture.indexOf("-"))
+                .equals(pEcritureComptable.getJournal().getCode())) {
+            throw new FunctionalException("La référence de l'écriture comptable ne correspond pas au code journal enregistré.");
+
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pEcritureComptable.getDate());
+        int yearOfEcritureInt = calendar.get(Calendar.YEAR);
+        if (!refEcriture.substring(refEcriture.indexOf("-") + 1, refEcriture.indexOf("/"))
+                .equals(String.valueOf(yearOfEcritureInt))) {
+            throw new FunctionalException("La référence de l'écriture comptable ne correspond pas aux valeurs de cette dernière.");
+        }
     }
 
 
