@@ -82,13 +82,10 @@ public class EcritureComptable {
      */
     // TODO à tester DONE
     public BigDecimal getTotalDebit() {
-        BigDecimal vRetour = BigDecimal.ZERO;
-        for (LigneEcritureComptable vLigneEcritureComptable : listLigneEcriture) {
-            if (vLigneEcritureComptable.getDebit() != null) {
-                vRetour = vRetour.add(vLigneEcritureComptable.getDebit());
-            }
-        }
-        return vRetour;
+        return listLigneEcriture.stream()
+                .filter(ligneEcritureComptable -> ligneEcritureComptable.getDebit() != null)
+                .map(LigneEcritureComptable::getDebit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -97,13 +94,10 @@ public class EcritureComptable {
      * @return {@link BigDecimal}, {@link BigDecimal#ZERO} si aucun montant au crédit
      */
     public BigDecimal getTotalCredit() {
-        BigDecimal vRetour = BigDecimal.ZERO;
-        for (LigneEcritureComptable vLigneEcritureComptable : listLigneEcriture) {
-            if (vLigneEcritureComptable.getCredit() != null) {
-                vRetour = vRetour.add(vLigneEcritureComptable.getCredit());
-            }
-        }
-        return vRetour;
+        return listLigneEcriture.stream()
+                .filter(ligneEcritureComptable -> ligneEcritureComptable.getCredit() != null)
+                .map(LigneEcritureComptable::getCredit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -111,8 +105,7 @@ public class EcritureComptable {
      * @return boolean
      */
     public boolean isEquilibree() {
-        boolean vRetour = this.getTotalDebit().equals(getTotalCredit());
-        return vRetour;
+        return this.getTotalDebit().equals(getTotalCredit());
     }
 
     // ==================== Méthodes ====================

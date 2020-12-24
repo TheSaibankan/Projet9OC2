@@ -1,6 +1,7 @@
 package com.dummy.myerp.model.bean.comptabilite;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.junit.Assert;
@@ -17,6 +18,16 @@ public class EcritureComptableTest {
         return new LigneEcritureComptable(new CompteComptable(pCompteComptableNumero),
                                                                     vLibelle,
                                                                     vDebit, vCredit);
+    }
+
+    @Test
+    public void getTotalCredit() {
+        EcritureComptable ecritureComptable = new EcritureComptable();
+        LigneEcritureComptable creditA = createLigne(1, null, "200");
+        LigneEcritureComptable creditB = createLigne(1, null, "201");
+        LigneEcritureComptable debitA = createLigne(1, "201", null);
+        ecritureComptable.getListLigneEcriture().addAll(Arrays.asList(creditA, creditB, debitA));
+        Assert.assertEquals(ecritureComptable.getTotalCredit(), new BigDecimal(401));
     }
 
     @Test

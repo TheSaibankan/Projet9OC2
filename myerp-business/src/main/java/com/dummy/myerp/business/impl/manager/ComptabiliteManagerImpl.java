@@ -176,7 +176,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         int yearOfEcritureInt = calendar.get(Calendar.YEAR);
         if (!refEcriture.substring(refEcriture.indexOf("-") + 1, refEcriture.indexOf("/"))
                 .equals(String.valueOf(yearOfEcritureInt))) {
-            throw new FunctionalException("La référence de l'écriture comptable ne correspond pas aux valeurs de cette dernière.");
+            throw new FunctionalException("La référence de l'écriture comptable ne correspond pas à l'année enregistrée.");
         }
     }
 
