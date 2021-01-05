@@ -41,7 +41,7 @@ public class ComptabiliteManagerImplTest {
     @DisplayName("Ecriture comptable valide, ne devrait pas envoyer une exception")
     public void checkEcritureComptableUnit_shouldNotThrowFunctionnalException() {
         EcritureComptable ecritureComptable = getEcritureComptable();
-        ecritureComptable.setReference("AC-2020/00001");
+        ecritureComptable.setReference("AC-2021/00001");
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                                                                                  null, new BigDecimal(123),
                                                                                  null));
@@ -130,18 +130,19 @@ public class ComptabiliteManagerImplTest {
     public void referenceMustBeUnique() throws NotFoundException {
         EcritureComptable ecritureComptable = getEcritureComptable();
         addValidLines(ecritureComptable);
-        ecritureComptable.setReference("AC-2020/00001");
+        ecritureComptable.setReference("AC-2021/00001");
 
-        when(comptabiliteDaoMock.getEcritureComptableByRef("AC-2020/00001")).thenReturn(ecritureComptable);
+        when(comptabiliteDaoMock.getEcritureComptableByRef("AC-2021/00001")).thenReturn(ecritureComptable);
 
         EcritureComptable ecritureComptableComparaison = new EcritureComptable();
+        ecritureComptableComparaison.setId(56);
         ecritureComptableComparaison.setLibelle("Libelle2");
         ecritureComptableComparaison.setJournal(new JournalComptable("AC", "Achat"));
         ecritureComptableComparaison.setDate(new Date());
         addValidLines(ecritureComptableComparaison);
-        ecritureComptableComparaison.setReference("AC-2020/00001");
+        ecritureComptableComparaison.setReference("AC-2021/00001");
 
-        Throwable functionalException = assertThrows(FunctionalException.class, () -> manager.checkEcritureComptable(ecritureComptable));
+        Throwable functionalException = assertThrows(FunctionalException.class, () -> manager.checkEcritureComptable(ecritureComptableComparaison));
         assertEquals(functionalException.getMessage(), "Une autre écriture comptable existe déjà avec la même référence.");    }
 
     @Nested
@@ -160,7 +161,7 @@ public class ComptabiliteManagerImplTest {
             ecritureComptable.setDate(calendar.getTime());
             ecritureComptable.setLibelle("Libelle");
 
-            ecritureComptable.setReference("CQ-2020/00001");
+            ecritureComptable.setReference("CQ-2021/00001");
 
             Throwable functionalException = assertThrows(FunctionalException.class, () -> manager.checkEcritureComptable(ecritureComptable));
             assertEquals(functionalException.getMessage(), "La référence de l'écriture comptable ne correspond pas au code journal enregistré.");
@@ -192,7 +193,7 @@ public class ComptabiliteManagerImplTest {
         @DisplayName("Ajout de la séquence : séquence déjà existante")
         public void addRefWithCreatedSequence() throws NotFoundException {
             Calendar calendar = Calendar.getInstance();
-            calendar.set(2020, Calendar.JANUARY, 1);
+            calendar.set(2021, Calendar.JANUARY, 1);
 
             EcritureComptable ecritureComptable = new EcritureComptable();
             ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
@@ -200,17 +201,17 @@ public class ComptabiliteManagerImplTest {
             ecritureComptable.setLibelle("Libelle");
             addValidLines(ecritureComptable);
 
-            when(comptabiliteDaoMock.getSequenceEcritureComptable(2020, "BQ")).thenReturn(new SequenceEcritureComptable(2020,51));
+            when(comptabiliteDaoMock.getSequenceEcritureComptable(2021, "BQ")).thenReturn(new SequenceEcritureComptable(2020,51));
             manager.addReference(ecritureComptable);
 
-            assertEquals("BQ-2020/00052", ecritureComptable.getReference());
+            assertEquals("BQ-2021/00052", ecritureComptable.getReference());
         }
 
         @Test
         @DisplayName("Ajout de la séquence : séquence inexistante")
         public void addRefWithNoSequenceCreated() throws NotFoundException {
             Calendar calendar = Calendar.getInstance();
-            calendar.set(2020, Calendar.JANUARY, 1);
+            calendar.set(2021, Calendar.JANUARY, 1);
 
             EcritureComptable ecritureComptable = new EcritureComptable();
             ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
@@ -218,14 +219,13 @@ public class ComptabiliteManagerImplTest {
             ecritureComptable.setLibelle("Libelle");
             addValidLines(ecritureComptable);
 
-            when(comptabiliteDaoMock.getSequenceEcritureComptable(2020, "BQ"))
+            when(comptabiliteDaoMock.getSequenceEcritureComptable(2021, "BQ"))
                     .thenThrow(new NotFoundException("Séquence non trouvée"));
             manager.addReference(ecritureComptable);
 
-            assertEquals("BQ-2020/00001", ecritureComptable.getReference());
+            assertEquals("BQ-2021/00001", ecritureComptable.getReference());
         }
     }
-
 
     private EcritureComptable getEcritureComptable() {
         EcritureComptable vEcritureComptable = new EcritureComptable();
@@ -243,5 +243,6 @@ public class ComptabiliteManagerImplTest {
                 null, null,
                 new BigDecimal(123)));
     }
+
 
 }

@@ -199,9 +199,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 // Si l'écriture à vérifier est une nouvelle écriture (id == null),
                 // ou si elle ne correspond pas à l'écriture trouvée (id != idECRef),
                 // c'est qu'il y a déjà une autre écriture avec la même référence
-                if (pEcritureComptable.getId() == null
-                    || !pEcritureComptable.getId().equals(vECRef.getId())) {
-                    throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
+                if (vECRef != null) {
+                    if (pEcritureComptable.getId() == null
+                            || !pEcritureComptable.getId().equals(vECRef.getId())) {
+                        throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
+                    }
                 }
             } catch (NotFoundException vEx) {
                 // Dans ce cas, c'est bon, ça veut dire qu'on n'a aucune autre écriture avec la même référence.
