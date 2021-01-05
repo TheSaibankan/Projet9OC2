@@ -1,1 +1,1 @@
-https://github.com/TheSaibankan/Projet9OC2/workflows/Maven/badge.svg
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/TheSaibankan/Projet9OC2/Maven)
