@@ -4,8 +4,9 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class EcritureComptableTest {
@@ -27,7 +28,7 @@ public class EcritureComptableTest {
         LigneEcritureComptable creditB = createLigne(1, null, "201");
         LigneEcritureComptable debitA = createLigne(1, "201", null);
         ecritureComptable.getListLigneEcriture().addAll(Arrays.asList(creditA, creditB, debitA));
-        Assert.assertEquals(ecritureComptable.getTotalCredit(), new BigDecimal(401));
+        assertEquals(ecritureComptable.getTotalCredit(), new BigDecimal(401));
     }
 
     @Test
@@ -40,7 +41,7 @@ public class EcritureComptableTest {
         vEcriture.getListLigneEcriture().add(this.createLigne(1, null, "200"));
         vEcriture.getListLigneEcriture().add(this.createLigne(2, null, "500"));
         vEcriture.getListLigneEcriture().add(this.createLigne(2, "500", null));
-        Assert.assertTrue(vEcriture.isEquilibree());
+        assertTrue(vEcriture.isEquilibree());
 
         vEcriture.getListLigneEcriture().clear();
         vEcriture.setLibelle("Non équilibrée");
@@ -48,7 +49,7 @@ public class EcritureComptableTest {
         vEcriture.getListLigneEcriture().add(this.createLigne(1, "20", "1"));
         vEcriture.getListLigneEcriture().add(this.createLigne(2, null, "30"));
         vEcriture.getListLigneEcriture().add(this.createLigne(2, "1", "2"));
-        Assert.assertFalse(vEcriture.isEquilibree());
+        assertFalse(vEcriture.isEquilibree());
     }
 
     @Test
@@ -57,8 +58,8 @@ public class EcritureComptableTest {
         vEcriture.getListLigneEcriture().add(this.createLigne(1, "250", null));
         vEcriture.getListLigneEcriture().add(this.createLigne(1, null, "250"));
 
-        Assert.assertEquals(250, vEcriture.getTotalDebit().intValue());
-        Assert.assertEquals(250, vEcriture.getTotalCredit().intValue());
+        assertEquals(250, vEcriture.getTotalDebit().intValue());
+        assertEquals(250, vEcriture.getTotalCredit().intValue());
     }
 
 }
