@@ -85,16 +85,16 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             finalSequence += lastValue;
             pEcritureComptable.setReference(pEcritureComptable.getJournal().getCode() + "-" + annee + "/" + finalSequence);
 
-            //updateSequence(code, transactionStatus, sequenceEcritureComptable);
+            updateSequence(code, sequenceEcritureComptable);
 
-        } catch (NotFoundException exception) {
+        } catch (NullPointerException | NotFoundException exception) {
             SequenceEcritureComptable sequenceEcritureComptable= new SequenceEcritureComptable();
             sequenceEcritureComptable.setAnnee(annee);
             sequenceEcritureComptable.setDerniereValeur(1);
 
             pEcritureComptable.setReference(pEcritureComptable.getJournal().getCode() + "-" + annee + "/" + "00001");
 
-            updateSequence(code, transactionStatus, sequenceEcritureComptable);
+            insertSequence(code, sequenceEcritureComptable);
 
        } finally {
            getTransactionManager().rollbackMyERP(transactionStatus);
@@ -102,10 +102,32 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
     }
 
-    private void updateSequence(String code, TransactionStatus transactionStatus, SequenceEcritureComptable sequenceEcritureComptable) {
-        getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(sequenceEcritureComptable, code);
-        getTransactionManager().commitMyERP(transactionStatus);
+    @Override
+    public void insertSequence(String code, SequenceEcritureComptable sequenceEcritureComptable) {
+
+        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+        try {
+            getDaoProxy().getComptabiliteDao().insertSequence(sequenceEcritureComptable, code);
+            getTransactionManager().commitMyERP(vTS);
+            vTS = null;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
+        }
     }
+
+    @Override
+    public void updateSequence(String code, SequenceEcritureComptable sequenceEcritureComptable) {
+        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+        try {
+            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(sequenceEcritureComptable, code);
+            getTransactionManager().commitMyERP(vTS);
+            vTS = null;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
+        }
+    }
+
+
 
     /**
      * {@inheritDoc}
@@ -124,7 +146,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable -
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
-    // TODO tests à compléter
+
     protected void checkEcritureComptableUnit(EcritureComptable pEcritureComptable) throws FunctionalException {
         // ===== Vérification des contraintes unitaires sur les attributs de l'écriture
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
@@ -162,7 +184,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 "L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
         }
 
-        // TODO ===== RG_Compta_5 : Format et contenu de la référence
         // vérifier que l'année dans la référence correspond bien à la date de l'écriture, idem pour le code journal...
         String refEcriture = pEcritureComptable.getReference();
         if (!refEcriture.substring(0, refEcriture.indexOf("-"))
@@ -194,16 +215,14 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             try {
                 // Recherche d'une écriture ayant la même référence
                 EcritureComptable vECRef = getDaoProxy().getComptabiliteDao().getEcritureComptableByRef(
-                    pEcritureComptable.getReference());
+                        pEcritureComptable.getReference());
 
                 // Si l'écriture à vérifier est une nouvelle écriture (id == null),
                 // ou si elle ne correspond pas à l'écriture trouvée (id != idECRef),
                 // c'est qu'il y a déjà une autre écriture avec la même référence
-                if (vECRef != null) {
-                    if (pEcritureComptable.getId() == null
-                            || !pEcritureComptable.getId().equals(vECRef.getId())) {
-                        throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
-                    }
+                if (pEcritureComptable.getId() == null
+                        || !pEcritureComptable.getId().equals(vECRef.getId())) {
+                    throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
                 }
             } catch (NotFoundException vEx) {
                 // Dans ce cas, c'est bon, ça veut dire qu'on n'a aucune autre écriture avec la même référence.

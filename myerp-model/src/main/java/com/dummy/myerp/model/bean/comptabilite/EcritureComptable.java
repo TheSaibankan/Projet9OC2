@@ -80,7 +80,7 @@ public class EcritureComptable {
      *
      * @return {@link BigDecimal}, {@link BigDecimal#ZERO} si aucun montant au débit
      */
-    // TODO à tester DONE
+
     public BigDecimal getTotalDebit() {
         return listLigneEcriture.stream()
                 .filter(ligneEcritureComptable -> ligneEcritureComptable.getDebit() != null)

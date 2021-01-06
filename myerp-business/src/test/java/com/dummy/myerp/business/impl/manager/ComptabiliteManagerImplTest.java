@@ -111,6 +111,23 @@ public class ComptabiliteManagerImplTest {
     }
 
     @Test
+    @DisplayName("Ecriture avec des valeurs négatives")
+    public void negativeValues() {
+        EcritureComptable ecritureComptable = getEcritureComptable();
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
+                null, new BigDecimal("-100"), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
+                null, null, new BigDecimal("-100")));
+        manager.addReference(ecritureComptable);
+
+        try {
+            manager.checkEcritureComptableUnit(ecritureComptable);
+        } catch (FunctionalException e) {
+            fail("Cette exception en devrait pas se produire : valeurs négatives non-acceptées");
+        }
+    }
+
+    @Test
     @DisplayName("Ecriture avec plus de 2 chiffres après la virgule")
     public void only2DigitsAfterDecimal() {
         EcritureComptable ecritureComptable = getEcritureComptable();
@@ -224,6 +241,29 @@ public class ComptabiliteManagerImplTest {
             manager.addReference(ecritureComptable);
 
             assertEquals("BQ-2021/00001", ecritureComptable.getReference());
+        }
+    }
+
+    @Nested
+    @DisplayName("Méthodes de récupérations des entités")
+    class readMethods{
+
+        @Test
+        @DisplayName("Récupération des écritures")
+        public void ecritureRead() {
+            assertNotNull(manager.getListEcritureComptable());
+        }
+
+        @Test
+        @DisplayName("Récupération des journaux")
+        public void journauxRead() {
+            assertNotNull(manager.getListJournalComptable());
+        }
+
+        @Test
+        @DisplayName("Récupération des comptes")
+        public void comptesRead() {
+            assertNotNull(manager.getListEcritureComptable());
         }
     }
 

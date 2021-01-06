@@ -5,6 +5,7 @@ import java.util.List;
 import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
 import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
 import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
+import com.dummy.myerp.model.bean.comptabilite.SequenceEcritureComptable;
 import com.dummy.myerp.technical.exception.FunctionalException;
 
 
@@ -51,6 +52,10 @@ public interface ComptabiliteManager {
      * @param pEcritureComptable L'écriture comptable concernée
      */
     void addReference(EcritureComptable pEcritureComptable);
+
+    void insertSequence(String code, SequenceEcritureComptable sequenceEcritureComptable);
+
+    void updateSequence(String code, SequenceEcritureComptable sequenceEcritureComptable);
 
     /**
      * Vérifie que l'Ecriture comptable respecte les règles de gestion.
