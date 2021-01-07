@@ -2,8 +2,10 @@ package com.dummy.myerp.model.bean.comptabilite;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,44 +24,56 @@ public class EcritureComptableTest {
     }
 
     @Test
-    public void getTotalCredit() {
+    @DisplayName("Vérifie le total crédit et débit de l'écriture")
+    public void getTotalCreditAndDebit() {
         EcritureComptable ecritureComptable = new EcritureComptable();
         LigneEcritureComptable creditA = createLigne(1, null, "200");
         LigneEcritureComptable creditB = createLigne(1, null, "201");
         LigneEcritureComptable debitA = createLigne(1, "201", null);
         ecritureComptable.getListLigneEcriture().addAll(Arrays.asList(creditA, creditB, debitA));
+
         assertEquals(ecritureComptable.getTotalCredit(), new BigDecimal(401));
+        assertEquals(ecritureComptable.getTotalDebit(), new BigDecimal(201));
     }
 
+
     @Test
+    @DisplayName("Vérifie si l'écriture est équilibré")
     public void isEquilibree() {
-        EcritureComptable vEcriture;
-        vEcriture = new EcritureComptable();
+        EcritureComptable ecritureComptable = new EcritureComptable();
 
-        vEcriture.setLibelle("Equilibrée");
-        vEcriture.getListLigneEcriture().add(this.createLigne(1, "200", null));
-        vEcriture.getListLigneEcriture().add(this.createLigne(1, null, "200"));
-        vEcriture.getListLigneEcriture().add(this.createLigne(2, null, "500"));
-        vEcriture.getListLigneEcriture().add(this.createLigne(2, "500", null));
-        assertTrue(vEcriture.isEquilibree());
+        ecritureComptable.setLibelle("Equilibrée");
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(1, "200", null));
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(1, null, "200"));
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(2, null, "500"));
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(2, "500", null));
+        assertTrue(ecritureComptable.isEquilibree());
 
-        vEcriture.getListLigneEcriture().clear();
-        vEcriture.setLibelle("Non équilibrée");
-        vEcriture.getListLigneEcriture().add(this.createLigne(1, "10", null));
-        vEcriture.getListLigneEcriture().add(this.createLigne(1, "20", "1"));
-        vEcriture.getListLigneEcriture().add(this.createLigne(2, null, "30"));
-        vEcriture.getListLigneEcriture().add(this.createLigne(2, "1", "2"));
-        assertFalse(vEcriture.isEquilibree());
+        ecritureComptable.getListLigneEcriture().clear();
+        ecritureComptable.setLibelle("Non équilibrée");
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(1, "10", null));
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(1, "20", "1"));
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(2, null, "30"));
+        ecritureComptable.getListLigneEcriture().add(this.createLigne(2, "1", "2"));
+        assertFalse(ecritureComptable.isEquilibree());
     }
 
     @Test
-    public void checkTotal(){
-        EcritureComptable vEcriture = new EcritureComptable();
-        vEcriture.getListLigneEcriture().add(this.createLigne(1, "250", null));
-        vEcriture.getListLigneEcriture().add(this.createLigne(1, null, "250"));
+    @DisplayName("Vérifie si toString() renvoie les bonnes valeurs")
+    public void verifyToString() {
+        Date actualDate = new Date();
 
-        assertEquals(250, vEcriture.getTotalDebit().intValue());
-        assertEquals(250, vEcriture.getTotalCredit().intValue());
+        EcritureComptable ecritureComptable = new EcritureComptable();
+        ecritureComptable.setId(1);
+        ecritureComptable.setDate(actualDate);
+        ecritureComptable.setLibelle("TestEcritureToString");
+
+        assertEquals("EcritureComptable{id=1, " +
+                "journal=null, " +
+                "reference='null', " +
+                "date="+actualDate+", " +
+                "libelle='TestEcritureToString', " +
+                "totalDebit=0, totalCredit=0, listLigneEcriture=[\n\n]}", ecritureComptable.toString());
     }
 
 }
