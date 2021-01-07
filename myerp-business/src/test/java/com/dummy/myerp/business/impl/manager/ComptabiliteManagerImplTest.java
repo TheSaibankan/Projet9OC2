@@ -1,46 +1,54 @@
 package com.dummy.myerp.business.impl.manager;
 
-import com.dummy.myerp.business.contrat.BusinessProxy;
-import com.dummy.myerp.business.impl.AbstractBusinessManager;
 import com.dummy.myerp.business.impl.TransactionManager;
 import com.dummy.myerp.consumer.dao.contrat.ComptabiliteDao;
 import com.dummy.myerp.consumer.dao.contrat.DaoProxy;
 import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
+import org.springframework.transaction.TransactionStatus;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
 public class ComptabiliteManagerImplTest {
 
-    private ComptabiliteManagerImpl manager = new ComptabiliteManagerImpl();
+    private static ComptabiliteManagerImpl manager;
 
-    private static BusinessProxy businessProxyMock=mock(BusinessProxy.class);
+    //private static BusinessProxy businessProxyMock=mock(BusinessProxy.class);
     private static DaoProxy daoProxyMock=mock(DaoProxy.class);
     private static TransactionManager transactionManagerMock=mock(TransactionManager.class);
     private static ComptabiliteDao comptabiliteDaoMock=mock(ComptabiliteDao.class);
 
     @BeforeAll
-    static void initializeTestBeans(){
-        AbstractBusinessManager.configure(businessProxyMock, daoProxyMock, transactionManagerMock);
+    static void configureDao() {
         when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+    }
+
+    @BeforeEach
+    void initializeTestBeans(){
+        manager = spy(new ComptabiliteManagerImpl());
+        manager.configure(null, daoProxyMock, transactionManagerMock);
+    }
+
+    @AfterEach
+    void nullifyManager(){
+        manager = null;
     }
 
     @Test
     @DisplayName("Ecriture comptable valide, ne devrait pas envoyer une exception")
     public void checkEcritureComptableUnit_shouldNotThrowFunctionnalException() {
-        EcritureComptable ecritureComptable = getEcritureComptable();
+        EcritureComptable ecritureComptable = getEmptyEcritureComptable();
         ecritureComptable.setReference("AC-2021/00001");
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                                                                                  null, new BigDecimal(123),
@@ -64,7 +72,7 @@ public class ComptabiliteManagerImplTest {
     @Test
     @DisplayName("Ecriture comptable non-équilibrée")
     public void checkEcritureComptableUnitRG2_shouldThrowFunctionalExceptionNonEquilibree() {
-        EcritureComptable ecritureComptable = getEcritureComptable();
+        EcritureComptable ecritureComptable = getEmptyEcritureComptable();
         LigneEcritureComptable ecritureDebit = new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal(123),
                 null);
@@ -85,7 +93,7 @@ public class ComptabiliteManagerImplTest {
         @Test
         @DisplayName("Ecriture comptable sans ligne débit")
         public void checkEcritureComptableUnitRG3Debit() {
-            EcritureComptable ecritureComptable = getEcritureComptable();
+            EcritureComptable ecritureComptable = getEmptyEcritureComptable();
             ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                     null, new BigDecimal(0),
                     null));
@@ -98,7 +106,7 @@ public class ComptabiliteManagerImplTest {
         @Test
         @DisplayName("Ecriture comptable sans ligne crédit")
         public void checkEcritureComptableUnitRG3Credit() {
-            EcritureComptable ecritureComptable = getEcritureComptable();
+            EcritureComptable ecritureComptable = getEmptyEcritureComptable();
             ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                     null, null,
                     new BigDecimal(0)));
@@ -113,7 +121,7 @@ public class ComptabiliteManagerImplTest {
     @Test
     @DisplayName("Ecriture avec des valeurs négatives")
     public void negativeValues() {
-        EcritureComptable ecritureComptable = getEcritureComptable();
+        EcritureComptable ecritureComptable = getEmptyEcritureComptable();
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal("-100"), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
@@ -130,7 +138,7 @@ public class ComptabiliteManagerImplTest {
     @Test
     @DisplayName("Ecriture avec plus de 2 chiffres après la virgule")
     public void only2DigitsAfterDecimal() {
-        EcritureComptable ecritureComptable = getEcritureComptable();
+        EcritureComptable ecritureComptable = getEmptyEcritureComptable();
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal("123.567"),
                 null));
@@ -145,7 +153,7 @@ public class ComptabiliteManagerImplTest {
     @Test
     @DisplayName("Ecriture dont la référence existe déjà")
     public void referenceMustBeUnique() throws NotFoundException {
-        EcritureComptable ecritureComptable = getEcritureComptable();
+        EcritureComptable ecritureComptable = getEmptyEcritureComptable();
         addValidLines(ecritureComptable);
         ecritureComptable.setReference("AC-2021/00001");
 
@@ -172,7 +180,7 @@ public class ComptabiliteManagerImplTest {
             Calendar calendar = Calendar.getInstance();
             calendar.set(2020, Calendar.JANUARY, 1);
 
-            EcritureComptable ecritureComptable = getEcritureComptable();
+            EcritureComptable ecritureComptable = getEmptyEcritureComptable();
             addValidLines(ecritureComptable);
             ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
             ecritureComptable.setDate(calendar.getTime());
@@ -189,7 +197,7 @@ public class ComptabiliteManagerImplTest {
             Calendar calendar = Calendar.getInstance();
             calendar.set(2020, Calendar.JANUARY, 1);
 
-            EcritureComptable ecritureComptable = getEcritureComptable();
+            EcritureComptable ecritureComptable = getEmptyEcritureComptable();
             addValidLines(ecritureComptable);
             ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
             ecritureComptable.setDate(calendar.getTime());
@@ -245,34 +253,84 @@ public class ComptabiliteManagerImplTest {
     }
 
     @Nested
-    @DisplayName("Méthodes de récupérations des entités")
-    class readMethods{
+    @DisplayName("Opération CRUD des écritures sans IT")
+    class opCRUD{
 
         @Test
-        @DisplayName("Récupération des écritures")
-        public void ecritureRead() {
-            assertNotNull(manager.getListEcritureComptable());
+        @DisplayName("Sauvegarde d'une écriture")
+        public void ecritureWrite() throws FunctionalException {
+
+            EcritureComptable ecritureComptable = getEmptyEcritureComptable();
+            addValidLines(ecritureComptable);
+            ecritureComptable.setReference("AC-2021/00001");
+
+            TransactionStatus transactionStatusMock = mock(TransactionStatus.class);
+            doNothing().when(manager).checkEcritureComptable(any(EcritureComptable.class));
+            when(transactionManagerMock.beginTransactionMyERP()).thenReturn(transactionStatusMock);
+            when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+            doNothing().when(comptabiliteDaoMock).insertEcritureComptable(any(EcritureComptable.class));
+            doNothing().when(transactionManagerMock).commitMyERP(transactionStatusMock);
+            doNothing().when(transactionManagerMock).rollbackMyERP(null);
+
+            manager.insertEcritureComptable(ecritureComptable);
+
+            verify(transactionManagerMock, atLeastOnce()).commitMyERP(transactionStatusMock);
+            verify(transactionManagerMock, atLeastOnce()).rollbackMyERP(null);
         }
 
         @Test
-        @DisplayName("Récupération des journaux")
-        public void journauxRead() {
-            assertNotNull(manager.getListJournalComptable());
+        @DisplayName("Mise à jour d'une écriture")
+        public void updateEcritureComptable() throws FunctionalException {
+
+            EcritureComptable ecritureComptable = getFullEcritureComptable();
+
+            TransactionStatus transactionStatusMock = Mockito.mock(TransactionStatus.class);
+            Mockito.when(transactionManagerMock.beginTransactionMyERP()).thenReturn(transactionStatusMock);
+            Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+            Mockito.doNothing().when(comptabiliteDaoMock).updateEcritureComptable(Mockito.any(EcritureComptable.class));
+            Mockito.doNothing().when(transactionManagerMock).commitMyERP(transactionStatusMock);
+            Mockito.doNothing().when(transactionManagerMock).rollbackMyERP(null);
+
+            manager.updateEcritureComptable(ecritureComptable);
+
+            Mockito.verify(transactionManagerMock, atLeastOnce()).commitMyERP(transactionStatusMock);
+            Mockito.verify(transactionManagerMock, atLeastOnce()).rollbackMyERP(null);
         }
 
         @Test
-        @DisplayName("Récupération des comptes")
+        @DisplayName("Suppression d'une écriture")
         public void comptesRead() {
-            assertNotNull(manager.getListEcritureComptable());
+
+            EcritureComptable ecritureComptable = getFullEcritureComptable();
+            ecritureComptable.setId(1);
+
+            TransactionStatus transactionStatusMock = Mockito.mock(TransactionStatus.class);
+            Mockito.when(transactionManagerMock.beginTransactionMyERP()).thenReturn(transactionStatusMock);
+            Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+            Mockito.doNothing().when(comptabiliteDaoMock).deleteEcritureComptable(Mockito.any(Integer.class));
+            Mockito.doNothing().when(transactionManagerMock).commitMyERP(transactionStatusMock);
+            Mockito.doNothing().when(transactionManagerMock).rollbackMyERP(null);
+
+            manager.deleteEcritureComptable(1);
+
+            Mockito.verify(transactionManagerMock, atLeastOnce()).commitMyERP(transactionStatusMock);
+            Mockito.verify(transactionManagerMock, atLeastOnce()).rollbackMyERP(null);
         }
     }
 
-    private EcritureComptable getEcritureComptable() {
-        EcritureComptable vEcritureComptable = new EcritureComptable();
-        vEcritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        vEcritureComptable.setDate(new Date());
-        vEcritureComptable.setLibelle("Libelle");
-        return vEcritureComptable;
+    private EcritureComptable getEmptyEcritureComptable() {
+        EcritureComptable ecritureComptable = new EcritureComptable();
+        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
+        ecritureComptable.setDate(new Date());
+        ecritureComptable.setLibelle("Libelle");
+        return ecritureComptable;
+    }
+
+    private EcritureComptable getFullEcritureComptable() {
+        EcritureComptable ecritureComptable = getEmptyEcritureComptable();
+        addValidLines(ecritureComptable);
+        ecritureComptable.setReference("AC-2020/00001");
+        return ecritureComptable;
     }
 
     private void addValidLines(EcritureComptable ecritureComptable) {
