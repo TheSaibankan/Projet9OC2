@@ -16,7 +16,7 @@ public class JournalComptableTest {
     @Test
     @DisplayName("Vérifie si toString() renvoie les bonnes valeurs")
     public void verifyToString() {
-        JournalComptable journalComptable = getFullJournalComptable("AC", "JournalTest");
+        JournalComptable journalComptable = new JournalComptable("AC", "JournalTest");
 
         assertEquals("JournalComptable{code='AC', libelle='JournalTest'}",
                 journalComptable.toString());
@@ -25,9 +25,9 @@ public class JournalComptableTest {
     @Test
     @DisplayName("Test de la méthode getByCode()")
     public void verifyGetByCode() {
-        JournalComptable journalComptableTest1 = getFullJournalComptable("AA", "journalComptableTest1");
-        JournalComptable journalComptableTest2 = getFullJournalComptable("AB", "journalComptableTest2");
-        JournalComptable journalComptableTest3 = getFullJournalComptable("AC", "journalComptableTest3");
+        JournalComptable journalComptableTest1 = new JournalComptable("AA", "journalComptableTest1");
+        JournalComptable journalComptableTest2 = new JournalComptable("AB", "journalComptableTest2");
+        JournalComptable journalComptableTest3 = new JournalComptable("AC", "journalComptableTest3");
 
         List<JournalComptable> journalComptableList = new ArrayList<>();
 
@@ -41,11 +41,6 @@ public class JournalComptableTest {
 
     }
 
-    private JournalComptable getFullJournalComptable(String code, String libelle) {
-        JournalComptable journalComptable = new JournalComptable();
-        journalComptable.setCode(code);
-        journalComptable.setLibelle(libelle);
-        return journalComptable;
-    }
+
 
 }
