@@ -230,6 +230,19 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
     }
 
+    @Override
+    public EcritureComptable getEcritureComptableByRef(String ref) throws NotFoundException {
+        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+        try {
+            EcritureComptable ecritureComptable = getDaoProxy().getComptabiliteDao().getEcritureComptableByRef(ref);
+            getTransactionManager().commitMyERP(vTS);
+            vTS = null;
+            return ecritureComptable;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */

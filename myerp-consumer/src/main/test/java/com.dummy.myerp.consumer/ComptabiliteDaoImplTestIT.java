@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -49,15 +50,40 @@ public class ComptabiliteDaoImplTestIT {
     public void getEcriture() {
         List<EcritureComptable> allEcritures = comptabiliteDao.getListEcritureComptable();
 
-        EcritureComptable ecritureComptableRecup = null;
-        try {
-            ecritureComptableRecup = comptabiliteDao.getEcritureComptableByRef("TT-2021/00001");
-        } catch (NotFoundException e) {
-            fail("Cette exception ne devrait pas se produire = Requête GET renvoie NotFoundException");
-        }
+        EcritureComptable ecritureComptableRecup = getEcritureWithCatch();
+        getEcritureWithCatch();
+        assertNotNull(ecritureComptableRecup);
 
         assertTrue(allEcritures.contains(ecritureComptable));
         assertEquals(ecritureComptableRecup, ecritureComptable);
+    }
+
+    @Test
+    public void updateEcriture() {
+        EcritureComptable ecritureComptableRecup = getEcritureWithCatch();
+        assertNotNull(ecritureComptableRecup);
+
+        ecritureComptableRecup.setLibelle("LibelleUpdate");
+        comptabiliteDao.updateEcritureComptable(ecritureComptableRecup);
+
+        assertEquals("LibelleUpdate", Objects.requireNonNull(getEcritureWithCatch()).getLibelle());
+    }
+
+    @Test
+    public void deleteEcriture() {
+        int id = getEcritureWithCatch().getId();
+        comptabiliteDao.deleteEcritureComptable(id);
+
+    }
+
+    private EcritureComptable getEcritureWithCatch() {
+        try {
+            return comptabiliteDao.getEcritureComptableByRef("TT-2021/00001");
+        } catch (NotFoundException e) {
+            fail("Cette exception ne devrait pas se produire = Requête GET renvoie NotFoundException");
+            return null;
+        }
+
     }
 
 

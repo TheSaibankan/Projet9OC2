@@ -7,6 +7,7 @@ import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
 import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
 import com.dummy.myerp.model.bean.comptabilite.SequenceEcritureComptable;
 import com.dummy.myerp.technical.exception.FunctionalException;
+import com.dummy.myerp.technical.exception.NotFoundException;
 
 
 /**
@@ -64,6 +65,8 @@ public interface ComptabiliteManager {
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
     void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException;
+
+    EcritureComptable getEcritureComptableByRef(String ref) throws NotFoundException;
 
     /**
      * Insert une nouvelle écriture comptable.
