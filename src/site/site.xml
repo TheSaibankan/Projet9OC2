@@ -9,15 +9,15 @@
   </skin>
 
   <bannerLeft>
-    <name>${project.name}</name>
+    <name>${this.name}</name>
     <src>img/logo-app.png</src>
-    <href>${project.url}</href>
+    <href>${this.url}</href>
   </bannerLeft>
 
   <bannerRight>
-    <name>${project.organization.name}</name>
+    <name>${this.organization.name}</name>
     <src>img/logo-client.png</src>
-    <href>${project.organization.url}</href>
+    <href>${this.organization.url}</href>
   </bannerRight>
 
 
