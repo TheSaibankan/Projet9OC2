@@ -63,8 +63,11 @@ public class ComptabiliteDaoImplITTest {
             EcritureComptable ecritureComptableRecup = comptabiliteDao.getEcritureComptableByRef("AC-2021/00001");
             assertNotNull(ecritureComptableRecup);
 
-            assertTrue(allEcritures.contains(ecritureComptable));
-            assertEquals(ecritureComptableRecup, ecritureComptable);
+            assertNotNull(allEcritures.stream()
+                    .filter(ecritureComptable1 -> "AC-2021/00001".equals(ecritureComptable1.getReference()))
+                    .findAny()
+                    .orElse(null));
+            assertEquals(ecritureComptableRecup.getReference(), ecritureComptable.getReference());
         }
 
         @Test
@@ -82,8 +85,8 @@ public class ComptabiliteDaoImplITTest {
 
         @Test
         @Order(4)
-        public void deleteEcriture() {
-            int id = ecritureComptable.getId();
+        public void deleteEcriture() throws NotFoundException {
+            int id = comptabiliteDao.getEcritureComptableByRef("AC-2021/00001").getId();
             comptabiliteDao.deleteEcritureComptable(id);
 
             assertThrows(NotFoundException.class, () -> comptabiliteDao.getEcritureComptable(id));
@@ -104,41 +107,34 @@ public class ComptabiliteDaoImplITTest {
 
         @Test
         @Order(2)
-        public void getSequence() {
-            SequenceEcritureComptable sequenceEcritureComptableTest = getSequenceWithCatch();
-            assertNotNull(sequenceEcritureComptableTest);
-            assertEquals(sequenceEcritureComptableTest, sequenceEcritureComptable);
+        public void getSequence() throws NotFoundException {
+            SequenceEcritureComptable sequenceEcritureComptableTest =
+                    comptabiliteDao.getSequenceEcritureComptable(2055, "AC");
+
+            assertEquals(sequenceEcritureComptableTest.getAnnee(), sequenceEcritureComptable.getAnnee());
+            assertEquals(sequenceEcritureComptableTest.getDerniereValeur(), sequenceEcritureComptable.getDerniereValeur());
         }
 
         @Test
         @Order(3)
-        public void updateSequence() {
-            SequenceEcritureComptable sequenceEcritureComptableTest = getSequenceWithCatch();
-            assertNotNull(sequenceEcritureComptableTest);
+        public void updateSequence() throws NotFoundException {
+            SequenceEcritureComptable sequenceEcritureComptableTest =
+                    comptabiliteDao.getSequenceEcritureComptable(2055, "AC");
 
-            sequenceEcritureComptableTest.setAnnee(2066);
+            sequenceEcritureComptableTest.setDerniereValeur(20066);
             comptabiliteDao.updateSequenceEcritureComptable(sequenceEcritureComptableTest, "AC");
 
-            assertEquals(2066, getSequenceWithCatch().getAnnee());
+            assertDoesNotThrow(() -> comptabiliteDao.getSequenceEcritureComptable(2055, "AC"));
         }
 
         @Test
         @Order(4)
         public void deleteSequence() {
-            comptabiliteDao.deleteSequenceEcritureComptable(2066, "AC", 91234);
+            comptabiliteDao.deleteSequenceEcritureComptable(2055, "AC", 20066);
             assertThrows(NotFoundException.class,
                     () -> comptabiliteDao.getSequenceEcritureComptable(2066, "AC"));
         }
 
-        private SequenceEcritureComptable getSequenceWithCatch() {
-            try {
-                return comptabiliteDao.getSequenceEcritureComptable(2055, "AC");
-            } catch (NotFoundException e) {
-                fail("Cette exception ne devrait pas se produire = " +
-                        "Requête GET renvoie NotFoundException (SequenceEcritureComptable)");
-                return null;
-            }
-        }
     }
 
     @Test

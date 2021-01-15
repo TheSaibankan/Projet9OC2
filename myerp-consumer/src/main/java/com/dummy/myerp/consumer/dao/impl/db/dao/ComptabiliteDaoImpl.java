@@ -329,7 +329,7 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
         sqlParameterSource.addValue("annee", annee);
-        sqlParameterSource.addValue("code", code);
+        sqlParameterSource.addValue("journal_code", code);
         sqlParameterSource.addValue("derniere_valeur", derniereValeur);
         namedParameterJdbcTemplate.update(SQLdeleteSequenceEcritureComptable, sqlParameterSource);
     }
