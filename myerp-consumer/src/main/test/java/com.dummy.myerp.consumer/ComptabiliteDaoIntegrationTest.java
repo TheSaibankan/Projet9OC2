@@ -18,9 +18,10 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("IntegrationTest")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"applicationContext.xml", "sqlContext.xml"})
-public class ComptabiliteDaoImplITTest {
+public class ComptabiliteDaoIntegrationTest {
 
     private static EcritureComptable ecritureComptable;
     private static SequenceEcritureComptable sequenceEcritureComptable;
@@ -47,7 +48,7 @@ public class ComptabiliteDaoImplITTest {
     @Nested
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @DisplayName("Opération CRUD avec EcritureComptable")
-    public class EcritureComptableTest {
+    public class EcritureComptableIntegrationTest {
 
         @Test
         @Order(1)
@@ -97,7 +98,7 @@ public class ComptabiliteDaoImplITTest {
     @Nested
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @DisplayName("Opération CRUD avec SequenceEcritureComptable")
-    public class SequenceComptableTest {
+    public class SequenceComptableIntegrationTest {
 
         @Test
         @Order(1)

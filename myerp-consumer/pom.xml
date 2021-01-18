@@ -10,7 +10,6 @@
         <groupId>com.dummy.myerp</groupId>
         <artifactId>myerp</artifactId>
         <version>1.x.x-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <!-- ===== Maven ===== -->
@@ -106,21 +105,13 @@
                                 </goals>
                                 <configuration>
                                     <sources>
-                                        <source>src/test-consumer/java</source>
+                                        <source>src/test/java</source>
                                     </sources>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
                 </plugins>
-                <testResources>
-                    <testResource>
-                        <directory>src/test/resources</directory>
-                    </testResource>
-                    <testResource>
-                        <directory>src/test-consumer/resources</directory>
-                    </testResource>
-                </testResources>
             </build>
         </profile>
     </profiles>
