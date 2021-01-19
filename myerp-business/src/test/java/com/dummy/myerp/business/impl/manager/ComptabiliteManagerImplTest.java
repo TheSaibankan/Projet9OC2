@@ -87,7 +87,7 @@ public class ComptabiliteManagerImplTest {
 
     @Nested
     @DisplayName("Test des scénarios relatifs à la règle de gestion 3")
-    class checkRG3 {
+    class checkRG3ImplTest {
         @Test
         @DisplayName("Ecriture comptable sans ligne débit")
         public void checkEcritureComptableUnitRG3Debit() {
@@ -170,7 +170,7 @@ public class ComptabiliteManagerImplTest {
 
     @Nested
     @DisplayName("Test de l'authenticité de la référence")
-    class checkRefValidity {
+    class checkRefValidityImplTest {
 
         @Test
         @DisplayName("Ecriture dont la référence ne respecte pas le code journal fournis")
@@ -211,7 +211,7 @@ public class ComptabiliteManagerImplTest {
 
     @Nested
     @DisplayName("Test des scénarios relatifs aux références")
-    class checkRef {
+    class checkRefImplTest {
         @Test
         @DisplayName("Ajout de la séquence : séquence déjà existante")
         public void addRefWithCreatedSequence() throws NotFoundException {
@@ -252,7 +252,7 @@ public class ComptabiliteManagerImplTest {
 
     @Nested
     @DisplayName("Opération CRUD des écritures sans IT")
-    class opCRUD{
+    class opCRUDImplTest{
 
         @Test
         @DisplayName("Sauvegarde d'une écriture")
