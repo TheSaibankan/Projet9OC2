@@ -22,3 +22,5 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn -B test -P unit-test-only --file pom.xml
+      - name: Generate Surefire report
+        run: mvn surefire-report:report-only -Daggregate=true
