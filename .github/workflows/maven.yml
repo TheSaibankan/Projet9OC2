@@ -22,9 +22,8 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn -B test -P unit-test-only --file pom.xml
-      - name: JUnit Report Action
-        uses: mikepenz/action-junit-report@v2.0.3
+      - name: Publish Test Report
+        uses: scacap/action-surefire-report@v1
         with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
