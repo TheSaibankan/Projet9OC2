@@ -23,7 +23,6 @@ public class ComptabiliteManagerImplTest {
 
     private static ComptabiliteManagerImpl manager;
 
-    //private static BusinessProxy businessProxyMock=mock(BusinessProxy.class);
     private static DaoProxy daoProxyMock=mock(DaoProxy.class);
     private static TransactionManager transactionManagerMock=mock(TransactionManager.class);
     private static ComptabiliteDao comptabiliteDaoMock=mock(ComptabiliteDao.class);
