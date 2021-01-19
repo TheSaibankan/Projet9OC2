@@ -72,5 +72,6 @@
     <!-- Build -->
     <!-- =============================================================== -->
     <build>
+        <testSourceDirectory>src/main/test/java</testSourceDirectory>
     </build>
 </project>
