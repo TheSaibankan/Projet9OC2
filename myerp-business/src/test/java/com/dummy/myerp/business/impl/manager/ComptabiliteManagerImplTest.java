@@ -256,7 +256,7 @@ public class ComptabiliteManagerImplTest {
 
         @Test
         @DisplayName("Sauvegarde d'une écriture")
-        public void ecritureWrite() throws FunctionalException {
+        public void writeEcritureComptable() throws FunctionalException {
 
             EcritureComptable ecritureComptable = getEmptyEcritureComptable();
             addValidLines(ecritureComptable);
@@ -297,7 +297,7 @@ public class ComptabiliteManagerImplTest {
 
         @Test
         @DisplayName("Suppression d'une écriture")
-        public void comptesRead() {
+        public void deleteEcritureComptable() {
 
             EcritureComptable ecritureComptable = getFullEcritureComptable();
             ecritureComptable.setId(1);
